@@ -144,6 +144,7 @@ class Solver(object):
 
 				for i, (images, GT, _) in enumerate(self.train_loader):
 					# GT : Ground Truth
+					#print('afdasdfasf')
 
 					images = images.to(self.device)
 					GT = GT.to(self.device)
@@ -300,8 +301,9 @@ class Solver(object):
 			wr = csv.writer(f)
 			wr.writerow([self.model_type,acc,SE,SP,PC,F1,JS,DC,self.lr,best_epoch,self.num_epochs,self.num_epochs_decay,self.augmentation_prob])
 			f.close()
+			return (DC)
 
-	def eval_test(self):
+	def eval_test(self, top_k=None):
 		if os.path.isfile(self.model_path_eval):
 			pattern = r"(\w+)-(\d+)-([\d.]+)-(\d+)-([\d.]+)\.pkl"
 			# Search for the pattern in the filename
@@ -341,73 +343,162 @@ class Solver(object):
 				'Dice_coefficient': []
 				}
 
+			if top_k == None:
+				for i, (images, GT, image_path) in enumerate(self.test_loader):
 
-			for i, (images, GT, image_path) in enumerate(self.train_loader):
-
-				images = images.to(self.device)
-				GT = GT.to(self.device)
-				SR = F.sigmoid(self.unet(images))
-				acc += get_accuracy(SR,GT)
-				SE += get_sensitivity(SR,GT)
-				SP += get_specificity(SR,GT)
-				PC += get_precision(SR,GT)
-				F1 += get_F1(SR,GT)
-				JS += get_JS(SR,GT)
-				DC += get_DC(SR,GT)
-						
-				length += images.size(0)
-				
-
-				#save data Collect metrics for each image
-				
-				metrics['filename'].append(image_path)
-				metrics['accuracy'].append(acc/length)
-				metrics['sensitivity'].append(SE/length)
-				metrics['specificity'].append(SP/length)
-				metrics['precision'].append(PC/length)
-				metrics['F1_score'].append(F1/length)
-				metrics['Jaccard_similarity'].append(JS/length)
-				metrics['Dice_coefficient'].append(DC/length)
-				print(image_path,acc/length,DC/length)
-
-				with open(os.path.join(self.result_path,'evaluation_metrics.csv'), mode='w', newline='') as file:
-					writer = csv.writer(file)
-					writer.writerow(['filename', 'accuracy', 'sensitivity', 'specificity', 'precision', 'F1_score', 'Jaccard_similarity', 'Dice_coefficient'])
-					for i in range(len(metrics['filename'])):
-						writer.writerow([metrics['filename'][i], metrics['accuracy'][i], metrics['sensitivity'][i], metrics['specificity'][i],
-										metrics['precision'][i], metrics['F1_score'][i], metrics['Jaccard_similarity'][i], metrics['Dice_coefficient'][i]])
-
-				images_cpu = images.detach().cpu().numpy()
-				SR_cpu = SR.detach().cpu().numpy()
-				GT_cpu = GT.detach().cpu().numpy()
-				
-				# Plot the images, model output, and ground trut
-				for idx in range(images_cpu.shape[0]):
-					fig, axs = plt.subplots(1, 3, figsize=(15, 5))
-
-					# Assuming the images are single channel (grayscale), if not adjust accordingly
-					axs[0].imshow(images_cpu[idx].transpose(1, 2, 0))
-					axs[0].set_title('Input Image')
+					images = images.to(self.device)
+					GT = GT.to(self.device)
+					SR = F.sigmoid(self.unet(images))
+					acc += get_accuracy(SR,GT)
+					SE += get_sensitivity(SR,GT)
+					SP += get_specificity(SR,GT)
+					PC += get_precision(SR,GT)
+					F1 += get_F1(SR,GT)
+					JS += get_JS(SR,GT)
+					DC += get_DC(SR,GT)
+							
+					length += images.size(0)
 					
-					axs[1].imshow(SR_cpu[idx][0], cmap='gray')
-					axs[1].set_title('Model Output')
 
-					axs[2].imshow(GT_cpu[idx][0], cmap='gray')
-					axs[2].set_title('Ground Truth')
+					#save data Collect metrics for each image
+					
+					metrics['filename'].append(image_path)
+					metrics['accuracy'].append(acc/length)
+					metrics['sensitivity'].append(SE/length)
+					metrics['specificity'].append(SP/length)
+					metrics['precision'].append(PC/length)
+					metrics['F1_score'].append(F1/length)
+					metrics['Jaccard_similarity'].append(JS/length)
+					metrics['Dice_coefficient'].append(DC/length)
+					print(image_path,"Accuracy:",acc/length, "Dice_Coefficient:",DC/length)
 
-					plt.show()
+					with open(os.path.join(self.result_path,'evaluation_metrics.csv'), mode='w', newline='') as file:
+						writer = csv.writer(file)
+						writer.writerow(['filename', 'accuracy', 'sensitivity', 'specificity', 'precision', 'F1_score', 'Jaccard_similarity', 'Dice_coefficient'])
+						for i in range(len(metrics['filename'])):
+							writer.writerow([metrics['filename'][i], metrics['accuracy'][i], metrics['sensitivity'][i], metrics['specificity'][i],
+											metrics['precision'][i], metrics['F1_score'][i], metrics['Jaccard_similarity'][i], metrics['Dice_coefficient'][i]])
+
+					images_cpu = images.detach().cpu().numpy()
+					SR_cpu = SR.detach().cpu().numpy()
+					GT_cpu = GT.detach().cpu().numpy()
+					
+					# Plot the images, model output, and ground trut
+					for idx in range(images_cpu.shape[0]):
+						fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+						# Assuming the images are single channel (grayscale), if not adjust accordingly
+						axs[0].imshow(images_cpu[idx].transpose(1, 2, 0))
+						axs[0].set_title('Input Image')
+						
+						axs[1].imshow(SR_cpu[idx][0], cmap='gray')
+						axs[1].set_title('Model Output')
+
+						axs[2].imshow(GT_cpu[idx][0], cmap='gray')
+						axs[2].set_title('Ground Truth')
+
+						plt.show()
+					
+
+				acc = acc/length
+				SE = SE/length
+				SP = SP/length
+				PC = PC/length
+				F1 = F1/length
+				JS = JS/length
+				DC = DC/length
+				unet_score = JS + DC
+				print([self.model_type,acc,SE,SP,PC,F1,JS,DC,self.lr,self.num_epochs,self.num_epochs_decay,self.augmentation_prob])
+
+			else:
+				dice_scores = []
+				count =0
+				for i, (images, GT, image_path) in enumerate(self.test_loader):
+					images = images.to(self.device)
+					GT = GT.to(self.device)
+					SR = F.sigmoid(self.unet(images))
+					acc += get_accuracy(SR, GT)
+					SE += get_sensitivity(SR, GT)
+					SP += get_specificity(SR, GT)
+					PC += get_precision(SR, GT)
+					F1 += get_F1(SR, GT)
+					JS += get_JS(SR, GT)
+					DC += get_DC(SR, GT)
+
+					length += images.size(0)
+
+					dice_scores.append((image_path,   DC / length))
+
+					# Collect metrics for each image
+					metrics['filename'].append(image_path)
+					metrics['accuracy'].append(acc / length)
+					metrics['sensitivity'].append(SE / length)
+					metrics['specificity'].append(SP / length)
+					metrics['precision'].append(PC / length)
+					metrics['F1_score'].append(F1 / length)
+					metrics['Jaccard_similarity'].append(JS / length)
+					metrics['Dice_coefficient'].append(DC / length)
+					count+=1
+					print(count, image_path, "Accuracy:", acc / length, "Dice_Coefficient:", DC / length)
+
+				dice_scores.sort(key=lambda x: x[1], reverse=True)
+				top_k_images = dice_scores[:top_k]
 				
+				fig, axs = plt.subplots(3, top_k, figsize=(15, 5 * top_k))
 
-			acc = acc/length
-			SE = SE/length
-			SP = SP/length
-			PC = PC/length
-			F1 = F1/length
-			JS = JS/length
-			DC = DC/length
-			unet_score = JS + DC
-			print([self.model_type,acc,SE,SP,PC,F1,JS,DC,self.lr,self.num_epochs,self.num_epochs_decay,self.augmentation_prob])
-		
+				for idx, (image_path, score) in enumerate(top_k_images):
+					for i, (images, GT, image_path_current) in enumerate(self.test_loader):
+						if image_path == image_path_current:
+							images = images.to(self.device)
+							GT = GT.to(self.device)
+							SR = torch.sigmoid(self.unet(images))
+							
+							axs[0, idx].imshow(images.cpu().numpy().squeeze().transpose(1, 2, 0))  # Adjust for the correct shape
+							#axs[0, idx].set_title(f"Image: {image_path}")
+							axs[0, idx].axis('off')
+
+							axs[1, idx].imshow(GT.cpu().numpy().squeeze(), cmap='gray')
+							#axs[1, idx].set_title("Ground Truth")
+							axs[1, idx].axis('off')
+
+							axs[2, idx].imshow(SR.cpu().detach().numpy().squeeze(), cmap='gray')
+							#axs[2, idx].set_title("Prediction")
+							axs[2, idx].axis('off')
+							break
+
+				plt.tight_layout()
+				plt.show()
+
+
+				bot_k_images = dice_scores[-top_k:]
+				
+				fig, axs = plt.subplots(3, top_k, figsize=(15, 5 * top_k))
+
+				for idx, (image_path, score) in enumerate(bot_k_images):
+					print(image_path, score)
+					for i, (images, GT, image_path_current) in enumerate(self.test_loader):
+						if image_path == image_path_current:
+							images = images.to(self.device)
+							GT = GT.to(self.device)
+							SR = torch.sigmoid(self.unet(images))
+							
+							axs[0, idx].imshow(images.cpu().numpy().squeeze().transpose(1, 2, 0))  # Adjust for the correct shape
+							#axs[0, idx].set_title(f"Image: {image_path}")
+							axs[0, idx].axis('off')
+
+							axs[1, idx].imshow(GT.cpu().numpy().squeeze(), cmap='gray')
+							#axs[1, idx].set_title("Ground Truth")
+							axs[1, idx].axis('off')
+
+							axs[2, idx].imshow(SR.cpu().detach().numpy().squeeze(), cmap='gray')
+							#axs[2, idx].set_title("Prediction")
+							axs[2, idx].axis('off')
+							break
+
+				plt.tight_layout()
+				plt.show()
+
+				
 		else:
 			print("path does not exit")
 
