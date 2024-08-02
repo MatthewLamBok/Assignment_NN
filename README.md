@@ -114,6 +114,7 @@ Options
 ## EVALUATION 
 
 
+EVALUATION OF TEST DATASET
 ```bash
 python main_v2_hyper_add.py \
 --image_size 224 \
@@ -172,8 +173,14 @@ python main_v2_hyper_add.py \
 
 ```
 
-## HISTORY
+## Results
 The final run and output is found in (https://github.com/MatthewLamBok/Assignment_NN/blob/main/main_v3_google_colab.ipynb) 
+
+| Model              | Accuracy | JS      | DC      |
+|--------------------|----------|---------|---------|
+| U-Net              | 92.002%  | 61.876% | 70.994% |
+| R2U-Net            | 92.727%  | 59.865% | 70.242% |
+| Attention U-Net    | 93.211%  | 62.547% | 71.363% |
 
 
 ## Acknowledgements
