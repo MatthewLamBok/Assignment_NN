@@ -49,37 +49,26 @@ def display_image_and_mask(image_path, mask_path):
     plt.show()
 
 
-def dataset_init(display_bool= False):
+def dataset_init(image_path_dir, display_bool= False):
     num_dataset = 1
 
-    image_path_dataset_1= '../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/images'
-    mask_path_dataset_1= '../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/masks'
+    image_path_dataset_1= image_path_dir + 'images'
+    mask_path_dataset_1= image_path_dir + 'masks'
 
     print(len(os.listdir(image_path_dataset_1)), len(os.listdir(mask_path_dataset_1)))
 
-
-    image_path_dataset_2 = '../data/cvcclinicdb/PNG/Original'
-    mask_path_dataset_2 = '../data/cvcclinicdb/PNG/Ground Truth'
-
-    print(len(os.listdir(image_path_dataset_2)), len(os.listdir(mask_path_dataset_2)))
 
     if display_bool== True:
         sample_image_1 = os.path.join(image_path_dataset_1, os.listdir(image_path_dataset_1)[0])
         sample_mask_1 = os.path.join(mask_path_dataset_1, os.listdir(mask_path_dataset_1)[0])
         display_image_and_mask(sample_image_1, sample_mask_1)
 
-        sample_image_2 = os.path.join(image_path_dataset_2, os.listdir(image_path_dataset_2)[0])
-        sample_mask_2 = os.path.join(mask_path_dataset_2, os.listdir(mask_path_dataset_2)[0])
-        display_image_and_mask(sample_image_2, sample_mask_2)
-
-
 
 
     image_paths_1 = [os.path.join(image_path_dataset_1, img) for img in os.listdir(image_path_dataset_1)]
     mask_paths_1 = [os.path.join(mask_path_dataset_1, img) for img in os.listdir(mask_path_dataset_1)]
 
-    image_paths_2 = [os.path.join(image_path_dataset_2, img) for img in os.listdir(image_path_dataset_2)]
-    mask_paths_2 = [os.path.join(mask_path_dataset_2, img) for img in os.listdir(mask_path_dataset_2)]
+ 
 
     #YOU NEED TO REMOVE test with smaller dataset
     #length = 100
@@ -87,12 +76,9 @@ def dataset_init(display_bool= False):
     #mask_paths_1 = mask_paths_1[ :length]
     #print(length)
 
-    if num_dataset == 2:
-        image_paths = image_paths_1 + image_paths_2
-        mask_paths = mask_paths_1 + mask_paths_2
-    else:
-        image_paths = image_paths_1
-        mask_paths = mask_paths_1
+
+    image_paths = image_paths_1
+    mask_paths = mask_paths_1
 
     image_paths.sort()
     mask_paths.sort()
@@ -105,7 +91,7 @@ def dataset_init(display_bool= False):
     return paired_paths
 
 def objective(trial, config):
-    paired_paths = dataset_init()
+    paired_paths = dataset_init(config.image_path_dir)
     train_val_paths, test_paths = train_test_split(paired_paths, test_size=0.2, random_state=42)
     train_paths, val_paths = train_test_split(train_val_paths, test_size=0.25, random_state=42)
 
@@ -223,7 +209,8 @@ if __name__ == '__main__':
     parser.add_argument('--test_model_path', type=str, default='/home/mlam/Documents/BME_NN_course/Output/models/R2AttU_Net-200-0.0005-137-0.6380.pkl')
     parser.add_argument('--image_path', type=str, default='/home/mlam/Documents/BME_NN_course/data/kvasir-dataset/kvasir-seg/Kvasir-SEG/images/ck2bxw18mmz1k0725litqq2mc.jpg')
     parser.add_argument('--result_path', type=str, default='../hyperOutput/result/')
-
+    parser.add_argument('--image_path_dir', type=str, default='../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/')
+  
     parser.add_argument('--cuda_idx', type=int, default=1)
     parser.add_argument('--tune', action='store_true', default=True, help='Flag to enable hyperparameter tuning with Optuna')
 

@@ -34,6 +34,11 @@ The model architecture includes different variations:
 
 
 ## Dependencies
+- Python 3.9
+- argparse
+- PyTorch
+- Optuna (if hyperparameter tuning is enabled)
+- Other dependencies as required by your project
 
 To install the required dependencies, run:
 
@@ -43,9 +48,47 @@ pip install -r requirements.txt
 
 ## Dataset
 
-## CODE
+Download  kvasir-dataset
+https://www.kaggle.com/datasets/meetnagadia/kvasir-dataset/data
+
+
+## Training the Model
 We have used J. Lee's "Image Segmentation" GitHub repository (https://github.com/LeeJunHyun/Image_Segmentation) as a baseline, and the Ksavir dataset has been implemented on top of it.
 
-## References
+To run the script, use the following command:
 
-To install the required dependencies, run:
+```bash
+python main_v2_hyper_add.py [options]
+```
+Options
+    --image_size: Size of the input image. Default is 224.
+    --t: Recurrent step for R2U_Net or R2AttU_Net. Default is 3.
+    --img_ch: Number of image channels. Default is 3.
+    --output_ch: Number of output channels. Default is 1.
+    --num_epochs: Number of training epochs. Default is 2.
+    --num_epochs_decay: Number of epochs after which learning rate decay is applied. Default is 70.
+    --batch_size: Batch size for training. Default is 2.
+    --num_workers: Number of workers for data loading. Default is 4.
+    --lr: Learning rate. Default is 0.0002.
+    --beta1: Momentum1 in Adam optimizer. Default is 0.5.
+    --beta2: Momentum2 in Adam optimizer. Default is 0.999.
+    --augmentation_prob: Probability of applying data augmentation. Default is 0.4.
+    --decay_ratio: Ratio of learning rate decay. Default is 0.5.
+    --log_step: Frequency of logging training information. Default is 2.
+    --val_step: Frequency of validation. Default is 2.
+    --mode: Mode of operation (train or test). Default is 'train'.
+    --model_type: Type of model to use ('U_Net', 'R2U_Net', 'AttU_Net', 'R2AttU_Net'). Default is 'AttU_Net'.
+    --model_path: Path to save the trained model. Default is ../hyperOutput/models.
+    --test_model_path: Path to a pretrained model for testing. Default is /home/mlam/Documents/BME_NN_course/Output/models/R2AttU_Net-200-0.0005-137-0.6380.pkl.
+    --image_path: Path to a specific image for testing. Default is /home/mlam/Documents/BME_NN_course/data/kvasir-dataset/kvasir-seg/Kvasir-SEG/images/ck2bxw18mmz1k0725litqq2mc.jpg.
+    --result_path: Path to save the results. Default is ../hyperOutput/result/.
+    --image_path_dir: Directory containing images for training/testing. Default is ../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/.
+    --cuda_idx: Index of the CUDA device to use. Default is 1.
+    --tune: Flag to enable hyperparameter tuning with Optuna. Default is True.
+
+## Acknowledgements
+
+[1] D. E. O’Sullivan, R. J. Hilsden, Y. Ruan, N. Forbes, S. J. Heitman, and D. R. Brenner, “The incidence of young-onset colorectal cancer in
+Canada continues to increase,” Cancer Epidemiol., vol. 69, p. 101828, Dec. 2020, doi: 10.1016/j.canep.2020.101828.
+[2] C. C. S. / S. canadienne du cancer, “Colorectal cancer statistics,” Canadian Cancer Society. Accessed: Jun. 23, 2024. [Online]. Available: https://cancer.ca/en/cancer-information/cancer-types/colorectal/statistics
+[3] M. Meseeha and M. Attia, “Colon Polyps,” in StatPearls, Treasure Island (FL): StatPearls Publishing, 2024. Accessed: Jun. 23, 2024. [Online]. Available: http://www.ncbi.nlm.nih.gov/books/NBK430761/
