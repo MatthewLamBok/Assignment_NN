@@ -1,5 +1,5 @@
-NN
-# AttU_Net Training
+
+# Attention U_Net Training
 
 This repository contains the implementation and training script for "Enhancing Polyp Segmentation in Colorectal
 Cancer using Attention U-Net Model", which is used for image segmentation tasks.
