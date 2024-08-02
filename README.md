@@ -111,7 +111,7 @@ Options
 - tune: Flag to enable hyperparameter tuning with Optuna. Default is True.
 
 
-## EVALUATION 
+## Evaluation
 
 
 EVALUATION OF TEST DATASET
