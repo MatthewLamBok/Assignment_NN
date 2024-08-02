@@ -77,12 +77,12 @@ python main_v2_hyper_add.py \
 --mode train \
 --model_type AttU_Net \
 --model_path ../hyperOutput/models \
---test_model_path /home/mlam/Documents/BME_NN_course/Output/models/R2AttU_Net-200-0.0005-137-0.6380.pkl \
---image_path /home/mlam/Documents/BME_NN_course/data/kvasir-dataset/kvasir-seg/Kvasir-SEG/images/ck2bxw18mmz1k0725litqq2mc.jpg \
+--test_model_path <MODEL PATH FOR EVALUATION > \
+--image_path <IMAGE PATH FOR EVALUATION > \
 --result_path ../hyperOutput/result/ \
 --image_path_dir ../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/ \
---cuda_idx 1 \
---tune True
+--cuda_idx 1 
+
 ```
 Options
 - image_size: Size of the input image. Default is 224.
@@ -103,12 +103,78 @@ Options
 - mode: Mode of operation (train or test). Default is 'train'.
 - model_type: Type of model to use ('U_Net', 'R2U_Net', 'AttU_Net', 'R2AttU_Net'). Default is 'AttU_Net'.
 - model_path: Path to save the trained model. Default is ../hyperOutput/models.
-- test_model_path: Path to a pretrained model for testing. Default is /home/mlam/Documents/BME_NN_course/Output/models/R2AttU_Net-200-0.0005-137-0.6380.pkl.
-- image_path: Path to a specific image for testing. Default is /home/mlam/Documents/BME_NN_course/data/kvasir-dataset/kvasir-seg/Kvasir-SEG/images/ck2bxw18mmz1k0725litqq2mc.jpg.
+- test_model_path: Path to a pretrained model for testing. 
+- image_path: Path to a specific image for testing. 
 - result_path: Path to save the results. Default is ../hyperOutput/result/.
 - image_path_dir: Directory containing images for training/testing. Default is ../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/.
 - cuda_idx: Index of the CUDA device to use. Default is 1.
 - tune: Flag to enable hyperparameter tuning with Optuna. Default is True.
+
+
+## EVALUATION 
+
+
+```bash
+python main_v2_hyper_add.py \
+--image_size 224 \
+--t 3 \
+--img_ch 3 \
+--output_ch 1 \
+--num_epochs 2 \
+--num_epochs_decay 70 \
+--batch_size 2 \
+--num_workers 4 \
+--lr 0.0002 \
+--beta1 0.5 \
+--beta2 0.999 \
+--augmentation_prob 0.4 \
+--decay_ratio 0.5 \
+--log_step 2 \
+--val_step 2 \
+--mode eval_test \
+--model_type AttU_Net \
+--model_path ../hyperOutput/models \
+--test_model_path <MODEL PATH FOR EVALUATION > \
+--image_path <IMAGE PATH FOR EVALUATION > \
+--result_path ../hyperOutput/result/ \
+--image_path_dir ../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/ \
+--cuda_idx 1 
+
+```
+
+EVALUATION OF A IMAGE DEPEND ON >> image_path
+
+```bash
+python main_v2_hyper_add.py \
+--image_size 224 \
+--t 3 \
+--img_ch 3 \
+--output_ch 1 \
+--num_epochs 2 \
+--num_epochs_decay 70 \
+--batch_size 2 \
+--num_workers 4 \
+--lr 0.0002 \
+--beta1 0.5 \
+--beta2 0.999 \
+--augmentation_prob 0.4 \
+--decay_ratio 0.5 \
+--log_step 2 \
+--val_step 2 \
+--mode indivi_test \
+--model_type AttU_Net \
+--model_path ../hyperOutput/models \
+--test_model_path <MODEL PATH FOR EVALUATION > \
+--image_path <IMAGE PATH FOR EVALUATION > \
+--result_path ../hyperOutput/result/ \
+--image_path_dir ../data/kvasir-dataset/kvasir-seg/Kvasir-SEG/ \
+--cuda_idx 1 
+
+```
+
+## HISTORY
+The final run and output is found in (https://github.com/MatthewLamBok/Assignment_NN/blob/main/main_v3_google_colab.ipynb) 
+
 
 ## Acknowledgements
 
